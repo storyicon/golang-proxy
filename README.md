@@ -32,9 +32,9 @@ go build -o "proxy-assessor.exe" assessor/assessor.go
 项目的 `./source/`目录下已经默认配置好了一些源，你只需要在 `./config/local.yml` 中正确配置你的数据库信息，就可以进行代理的抓取。
 
 1.  **对于 windows 用户**  
-    将./bin/windows 目录下的 publisher.exe, consumer.exe, assessor.exe 移动到 golang-proxy 的根目录，分别运行 publisher.exe, consumer.exe, assessor.exe 即可
+    将`./bin/windows` 目录下的 publisher.exe, consumer.exe, assessor.exe 移动到 golang-proxy 的根目录，分别运行 publisher.exe, consumer.exe, assessor.exe 即可
 2.  **对于 linux 用户**  
-    见./bin/linux
+    见`./bin/linux`
 3.  **对于 Mac 用户**  
      ...
 
@@ -166,7 +166,7 @@ debug: true
 
 ### 3. 策略配置项：
 
-你可以在 **./library/const.go** 中进行配置
+你可以在 `./library/const.go` 中进行配置
 
 ```go
 const (
