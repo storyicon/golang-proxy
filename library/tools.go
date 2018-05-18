@@ -2,6 +2,7 @@ package library
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -16,6 +17,8 @@ import (
 	"github.com/nsqio/go-nsq"
 	yaml "gopkg.in/yaml.v2"
 )
+
+var SourcePath, ConfigPath string
 
 func loadYaml(path string, data interface{}) {
 	_, err := os.Stat(path)
@@ -36,7 +39,7 @@ func GetConfig() *Config {
 		environment = "local"
 		log.Println("Use Default Environment: local")
 	}
-	path := "./config/" + environment + ".yml"
+	path := ConfigPath + environment + ".yml"
 	loadYaml(path, &c)
 	return &c
 }
@@ -68,16 +71,16 @@ func NewNSQConsumer(addr string, topic string, chanel string, handler nsq.Handle
 }
 
 func GetSource() *[]Source {
-	rootpath := "./source/"
 	var s Source
 	var r []Source
-	filepath.Walk(rootpath, func(path string, info os.FileInfo, err error) error {
+
+	filepath.Walk(SourcePath, func(path string, info os.FileInfo, err error) error {
 		if info == nil || info.IsDir() {
 			return nil
 		}
 		filename := info.Name()
 		if strings.HasSuffix(filename, ".yml") && !strings.HasPrefix(filename, ".") {
-			file := rootpath + filename
+			file := SourcePath + filename
 			loadYaml(file, &s)
 			s.Name = filename
 			r = append(r, s)
@@ -148,4 +151,12 @@ func Contains(obj interface{}, target interface{}) bool {
 		}
 	}
 	return false
+}
+
+func init() {
+	flag.StringVar(&ConfigPath, "config", "./config/", "config foler`s path,  must end with / or \\\\")
+	flag.StringVar(&SourcePath, "source", "./source/", "source foler`s path,  must end with / or \\\\")
+	flag.Parse()
+	log.Println("Config Path:", ConfigPath)
+	log.Println("Source Path:", SourcePath)
 }

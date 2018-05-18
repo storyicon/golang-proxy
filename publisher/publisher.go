@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/storyicon/golang-proxy/library"
 	"log"
 	"strconv"
 	"strings"
+
+	"golang-proxy/library"
 
 	"github.com/gocolly/colly"
 	nsq "github.com/nsqio/go-nsq"

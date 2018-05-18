@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/storyicon/golang-proxy/library"
+	"golang-proxy/library"
 	"log"
 	"math"
 	"strings"
