@@ -1,0 +1,29 @@
+# "."命名开头的文件将不会被载入
+page: 
+    entry: "https://ip.seofangfa.com/proxy/1.html"
+    template: "https://ip.seofangfa.com/proxy/{page}.html"
+    from: 2
+    to: 10
+    #<div class="item">
+    #   <div class="ip">120.12.0.5</div>
+    #   <div class="port">8888</div>
+    #   <div class="protocal">HTTP</div>
+    #   <div class="proxytype">国内</div>
+    #   <div class="filter">透明</div>
+    #</div>
+selector:
+    iterator: ".table tbody tr"
+    ip: "td:nth-child(1)"
+    port: "td:nth-child(2)"
+    protocal: ""
+    #$(proxytype).length ? '国外' : '国内'
+    #为空则统一国内
+    proxytype: ""
+    #$(filter).length ? '保留该proxy' : '删除'
+    #为空则全部保留
+    filter: ""
+category:
+    parallelnumber: 1
+    delayRange: [5, 20]
+    interval: "@every 10m"
+debug: true

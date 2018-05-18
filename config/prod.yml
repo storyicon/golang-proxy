@@ -1,0 +1,13 @@
+#Database
+mysql:
+    host: "127.0.0.1"
+    port: "3306"
+    user: "root"
+    pass: "Fz475783185."
+    db: "proxies"
+    charset: "utf8"
+nsq:
+    producer_addr: "127.0.0.1:4150"
+    consumer_addr: "127.0.0.1:4161"
+#Other
+debug: false
