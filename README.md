@@ -66,10 +66,10 @@ Golang-Proxy将代理的收集流程分为了三个模块:
 　　为了提高某个模块的效率，你可以启动多个进程，比如你认为抓取速度太慢了，你甚至可以再启动一个Publisher。     
 3. 简单配置     
 　　./config目录下，你可以快捷地对MySQL和NSQ的参数进行配置。     
-项目分为测试环境和线上环境，你可以通过设置环境变量**GOLANG_PROXY_ENV**为**local**或**prod**，来控制程序是使用local.yml还是prod.yml作为配置文件，**默认是读取local.yml**。当然，如果你只是在本地运行，那只需要修改local.yml的配置即可。
-　　你可以简单的通过在 __./source__ 目录下添加yml格式的源，Golang-Proxy的publisher在启动时，将自动读取并载入。
+项目分为测试环境和线上环境，你可以通过设置环境变量**GOLANG_PROXY_ENV**为**local**或**prod**，来控制程序是使用local.yml还是prod.yml作为配置文件，**默认是读取local.yml**。当然，如果你只是在本地运行，那只需要修改local.yml的配置即可。    
+　　你可以简单的通过在 __./source__ 目录下添加yml格式的源，Golang-Proxy的publisher在启动时，将自动读取并载入。    
 
-##配置项
+## 配置项
 ### 1. Config配置项
 　　**./config/** 下的**local.yml**和**prod.yml**分别用于配置**本机测试**和**线上运行**的数据库参数，运行前需要先行配置。
 ### 2. Source配置项：
