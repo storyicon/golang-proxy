@@ -13,10 +13,8 @@ import (
 
 type Assessor struct {
 	Config    *library.Config
-	Queue     []*library.ValidProxy
 	MySQL     *library.MySQL
 	Scheduler *cron.Cron
-	Count     int
 }
 
 /**
@@ -75,36 +73,34 @@ func (s *Assessor) UpdateValidProxy(p *library.ValidProxy) {
 	}
 }
 
-func (s *Assessor) GetValidProxy() {
-	length := library.ProxyAssessQueueMin - len(s.Queue)
-	//log.Printf("QueueLength:%d, Dert:%d", len(s.Queue), length)
-	if length > 0 {
-		s.MySQL.Connection.
-			Where("unix_timestamp(now()) - last_assess_time >= ?", library.ProxyAssessInterval).
-			Or("last_assess_time = ?", 0).
-			Order("last_assess_time").
-			Limit(length).
-			Find(&s.Queue)
-		// log.Printf("Maybe has fetched %d from database, current queue length: %d", len(s.Queue)-length, len(s.Queue))
+func (s *Assessor) GetValidProxy(c chan library.ValidProxy) {
+	var q []library.ValidProxy
+	s.MySQL.Connection.
+		Where("unix_timestamp(now()) - last_assess_time >= ?", library.ProxyAssessInterval).
+		Or("last_assess_time = ?", 0).
+		Order("last_assess_time").
+		Limit(library.ProxyAssessQueueMin).
+		Find(&q)
+	log.Printf("Get %d from database...", len(q))
+	for i := 0; i < len(q); i++ {
+		c <- q[i]
 	}
 }
 
 func (s *Assessor) Start() {
-	s.GetValidProxy()
+	c := make(chan library.ValidProxy)
+
+	go s.GetValidProxy(c)
 	s.Scheduler.AddFunc("@every 3s", func() {
-		s.GetValidProxy()
+		s.GetValidProxy(c)
 	})
 	s.Scheduler.Start()
-	s.Count = 0
-	var p *library.ValidProxy
+
 	for {
-		time.Sleep(50 * time.Millisecond)
-		if len(s.Queue) > 0 {
-			s.Count++
-			p, s.Queue = s.Queue[0], s.Queue[1:]
-			go s.ProxyAssess(p)
+		select {
+		case e := <-c:
+			go s.ProxyAssess(&e)
 		}
-		p = nil
 	}
 }
 
