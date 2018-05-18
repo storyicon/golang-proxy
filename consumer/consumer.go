@@ -1,7 +1,7 @@
 package main
 
 import (
-	"golang-proxy/library"
+	"github.com/storyicon/golang-proxy/library"
 	"log"
 	"net/http"
 	"time"
