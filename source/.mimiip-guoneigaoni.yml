@@ -4,23 +4,12 @@ page:
     template: "http://www.mimiip.com/gngao/{page}"
     from: 2
     to: 500
-    #<div class="item">
-    #   <div class="ip">120.12.0.5</div>
-    #   <div class="port">8888</div>
-    #   <div class="protocal">HTTP</div>
-    #   <div class="proxytype">国内</div>
-    #   <div class="filter">透明</div>
-    #</div>
 selector:
     iterator: "#middle_wrapper > div > table > tbody > tr"
     ip: "td:nth-child(1)"
     port: "td:nth-child(2)"
     protocal: "td:nth-child(5)"
-    #$(proxytype).length ? '国外' : '国内'
-    #为空则统一国内
     proxytype: ""
-    #$(filter).length ? '保留该proxy' : '删除'
-    #为空则全部保留
     filter: ""
 category:
     parallelnumber: 3

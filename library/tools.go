@@ -31,7 +31,7 @@ func loadYaml(path string, data interface{}) {
 
 func GetConfig() *Config {
 	c := Config{}
-	environment := os.Getenv("SCHEDULER_ENV")
+	environment := os.Getenv("GOLANG_PROXY_ENV")
 	if environment == "" {
 		environment = "local"
 		log.Println("Use Default Environment: local")
