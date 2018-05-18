@@ -19,19 +19,19 @@ $ go build assessor\assessor.go
 #### 2. 开箱即用版本  
 项目的 __./source/__目录下已经默认配置好了一些源，你只需要在__./config/local.yml__中正确配置你的数据库信息，就可以进行代理的抓取。
 
-1. **对于windows用户**
+1. **对于windows用户**    
 将./bin/windows目录下的publisher.exe, consumer.exe, assessor.exe 移动到golang-proxy的根目录，分别运行publisher.exe, consumer.exe, assessor.exe即可
-2. **对于lunix用户**
+2. **对于lunix用户**    
 ...
-3. **对于Mac用户**
+3. **对于Mac用户**    
 ...
 
-注意：
-想要让golang-proxy在你的机器上成功运行，你还需要一个MySQL和一个NSQ。
-NSQ下载地址：https://nsq.io/deployment/installing.html
-MySQL下载地址：https://www.mysql.com/downloads/
-安装完成后启动NSQ和MySQL服务
-在配置文件 **./config/local.yml** 中修改你的配置信息，在MySQL中相应的数据库（local.yml中的mysql.db）下执行如下SQL语句创建数据表：
+__注意：__
+想要让golang-proxy在你的机器上成功运行，你还需要一个MySQL和一个NSQ。     
+NSQ下载地址：https://nsq.io/deployment/installing.html    
+MySQL下载地址：https://www.mysql.com/downloads/    
+安装完成后启动NSQ和MySQL服务    
+在配置文件 **./config/local.yml** 中修改你的配置信息，在MySQL中相应的数据库（local.yml中的mysql.db）下执行如下SQL语句创建数据表：    
 ```sql
 CREATE TABLE `valid_proxy` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -47,10 +47,10 @@ CREATE TABLE `valid_proxy` (
 ) ENGINE=InnoDB AUTO_INCREMENT=10428 DEFAULT CHARSET=utf8;
 
 ```
-在这些都全部完成后，你才可以正常的运行Golang-Proxy
-## 为什么要用 Golang-Proxy
-1. 稳定、快速。
-抓取模块，__单核并发可以到达1000个页面/秒__。
+在这些都全部完成后，你才可以正常的运行Golang-Proxy    
+## 为什么要用 Golang-Proxy    
+1. 稳定、快速。    
+抓取模块，__单核并发可以到达1000个页面/秒__。    
 2. 高可配置性、高拓展性
 你不需要写任何代码，花__一两分钟__填写一个配置文件就可以添加一个新的网站源。
 通过评估模块，周期性测试代理质量，根据代理的__抓取次数、成功率、响应速度、突变性__来进行综合评估，参数可以根据你的需要进行调节。
@@ -59,13 +59,13 @@ CREATE TABLE `valid_proxy` (
 　　引入了 **源** 的概念，可以把一个源理解为一个待抓取的网站，有很多这样的网站，比如“kuaidaili.com”，“xiaohexia.cn”，他们都是源。优质的源越多，你可以抓取到的免费代理就越多，抓取效率也就越高。
 　　使用Golang-Proxy，添加一个新的网站源，不需要写任何代码，也不需要重新编译程序，一两分钟你就可以完成一个源的添加。
 2. 模块化
-Golang-Proxy将代理的收集流程分为了三个模块:
-* __Publisher__ 用于抓取代理；
-* __Consumer__ 负责从队列中读取抓到的代理，并进行有效性检测，有效则插入数据库；
-* __Assessor__ 用于对数据库中的代理进行价值评估；
-为了提高某个模块的效率，你可以启动多个进程，比如你认为抓取速度太慢了，你甚至可以再启动一个Publisher。
-3. 简单配置
-　　./config目录下，你可以快捷地对MySQL和NSQ的参数进行配置。
+Golang-Proxy将代理的收集流程分为了三个模块:    
+　　* __Publisher__ 用于抓取代理；    
+　　* __Consumer__ 负责从队列中读取抓到的代理，并进行有效性检测，有效则插入数据库；    
+　　* __Assessor__ 用于对数据库中的代理进行价值评估；     
+　　为了提高某个模块的效率，你可以启动多个进程，比如你认为抓取速度太慢了，你甚至可以再启动一个Publisher。     
+3. 简单配置     
+　　./config目录下，你可以快捷地对MySQL和NSQ的参数进行配置。     
 项目分为测试环境和线上环境，你可以通过设置环境变量**GOLANG_PROXY_ENV**为**local**或**prod**，来控制程序是使用local.yml还是prod.yml作为配置文件，**默认是读取local.yml**。当然，如果你只是在本地运行，那只需要修改local.yml的配置即可。
 　　你可以简单的通过在 __./source__ 目录下添加yml格式的源，Golang-Proxy的publisher在启动时，将自动读取并载入。
 
