@@ -6,7 +6,7 @@ Golang-Proxy -- 简单高效的免费代理抓取工具
 ![GopherGoRequest](https://raw.githubusercontent.com/parnurzeal/gorequest/gh-pages/images/Gopher_GoRequest_400x300.jpg)
 
 ## 安装
-1. 通过编译源码
+#### 1. 通过编译源码  
 ```bash
 $ git clone https://github.com/storyicon/golang-proxy.git
 $ cd golang-proxy/publisher
@@ -16,7 +16,7 @@ $ go build assessor\assessor.go
 ```
 分别启动编译好的publisher、consumer、assessor即可
 
-2. 开箱即用版本
+#### 2. 开箱即用版本  
 项目的 __./source/__目录下已经默认配置好了一些源，你只需要在__./config/local.yml__中正确配置你的数据库信息，就可以进行代理的抓取。
 
 1. **对于windows用户**
