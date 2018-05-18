@@ -8,11 +8,11 @@ Golang-Proxy -- 简单高效的免费代理抓取工具
 ## 安装
 #### 1. 通过编译源码  
 ```bash
-$ git clone https://github.com/storyicon/golang-proxy.git
-$ cd golang-proxy/publisher
-$ go build publisher\publisher.go
-$ go build consumer\consumer.go
-$ go build assessor\assessor.go
+go get github.com/storyicon/golang-proxy
+cd $GOPATH/src/github.com/storyicon/golang-proxy
+go build -o "proxy-publisher" publisher/publisher.go
+go build -o "proxy-consumer" consumer/consumer.go
+go build -o "proxy-assessor" assessor/assessor.go
 ```
 分别启动编译好的publisher、consumer、assessor即可
 
