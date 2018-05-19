@@ -66,7 +66,7 @@ func (s *Assessor) ProxyAssessFeedBack(p *library.ValidProxy, isSucc int, respon
 
 func (s *Assessor) UpdateValidProxy(p *library.ValidProxy) {
 	succRate := float64(p.SuccessTimes) / float64(p.AssessTimes)
-	if succRate < library.AllowProxyAssessSuccessRateMin {
+	if succRate < library.AllowProxyAssessSuccessRateMin && p.AssessTimes > 5 {
 		s.MySQL.Connection.Delete(p)
 	} else {
 		s.MySQL.Connection.Save(p)
