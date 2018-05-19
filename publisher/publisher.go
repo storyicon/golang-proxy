@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"golang-proxy/library"
+	"github.com/storyicon/golang-proxy/library"
 
 	"github.com/gocolly/colly"
 	nsq "github.com/nsqio/go-nsq"
