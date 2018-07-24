@@ -12,8 +12,8 @@ import (
 )
 
 type Response struct {
-	Code    int
-	Message interface{}
+	Code    int `json:"code"`
+	Message interface{} `json:"message"`
 }
 
 func StdExport(r http.ResponseWriter, data interface{}, err error) {
