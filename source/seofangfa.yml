@@ -8,8 +8,7 @@ selector:
     iterator: ".table tbody tr"
     ip: "td:nth-child(1)"
     port: "td:nth-child(2)"
-    protocal: ""
-    proxytype: ""
+    scheme: ""
     filter: ""
 category:
     parallelnumber: 1

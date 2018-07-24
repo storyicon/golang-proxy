@@ -8,11 +8,10 @@ selector:
     iterator: "#list > table > tbody > tr"
     ip: "[data-title=IP]"
     port: "[data-title=PORT]"
-    protocal: "[data-title=类型]"
-    proxytype: ""
+    scheme: "[data-title=类型]"
     filter: ""
 category:
     parallelnumber: 3
     delayRange: [1, 3]
     interval: "@every 10m"
-debug: false
+debug: true

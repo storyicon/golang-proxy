@@ -8,8 +8,7 @@ selector:
     iterator: "#ip_list > tbody > tr"
     ip: "td:nth-child(2)"
     port: "td:nth-child(3)"
-    protocal: "td:nth-child(6)"
-    proxytype: ""
+    scheme: "td:nth-child(6)"
     filter: ""
 category:
     parallelnumber: 3
