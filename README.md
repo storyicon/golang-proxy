@@ -37,7 +37,7 @@ business\publisher.go:8:2: cannot find package "github.com/gocolly/col1ly" in an
 执行 go get github.com/gocolly/col1ly 即可
 ```
 
-如果觉得麻烦，可以使用 `/bin` 目录中提供的 **`开箱即用`** 版本。
+如果觉得麻烦，可以使用 [Release 页面](https://github.com/storyicon/golang-proxy/releases/) 中提供的 **`开箱即用`** 版本。
 
 #### 2. 开箱即用版本
 
