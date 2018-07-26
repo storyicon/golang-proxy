@@ -68,9 +68,3 @@ func (c *Consumer) Start() {
 	})
 	c.Scheduler.Start()
 }
-
-// ?[36mINFO?[0m[0027] {180.167.25.62, 189.51.97.130}
-// ?[33mWARN?[0m[0027] [C]Proxy "http://189.51.106.198:20183" Pre Assess Failed: Not Highly Anonymous
-
-// ?[36mINFO?[0m[0065] {210.22.156.162, 201.184.105.122}
-// ?[33mWARN?[0m[0065] [C]Proxy "http://201.184.105.122:8080" Pre Assess Failed: Not Highly Anonymous
