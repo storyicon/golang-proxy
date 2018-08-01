@@ -25,16 +25,16 @@ go get github.com/storyicon/golang-proxy
 进入到 `golang-proxy` 目录，执行 `go build main.go`，执行生成的二进制的执行程序即可。
 
 **注意：**
-在 `go build` 的过程中可能出现`cannot find package "github.com/gocolly/col1ly" in any of` 等找不到包的情况，根据提示的地址 `go get` 即可
+在 `go build` 的过程中可能出现`cannot find package "github.com/gocolly/colly" in any of` 等找不到包的情况，根据提示的地址 `go get` 即可
 
 ```
 # 比如如果在 go build main.go 的时候提示
-business\publisher.go:8:2: cannot find package "github.com/gocolly/col1ly" in any of:
-        F:\Go\src\github.com\gocolly\col1ly (from $GOROOT)
-        D:\golang\src\github.com\gocolly\col1ly (from $GOPATH)
-        C:\Users\Administrator\go\src\github.com\gocolly\col1ly
-        D:\ivank\src\github.com\gocolly\col1ly
-执行 go get github.com/gocolly/col1ly 即可
+business\publisher.go:8:2: cannot find package "github.com/gocolly/colly" in any of:
+        F:\Go\src\github.com\gocolly\colly (from $GOROOT)
+        D:\golang\src\github.com\gocolly\colly (from $GOPATH)
+        C:\Users\Administrator\go\src\github.com\gocolly\colly
+        D:\ivank\src\github.com\gocolly\colly
+执行 go get github.com/gocolly/colly 即可
 ```
 
 如果觉得麻烦，可以使用 [Release 页面](https://github.com/storyicon/golang-proxy/releases/) 中提供的 **`开箱即用`** 版本。
