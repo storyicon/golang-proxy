@@ -5,7 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"storyicon.visualstudio.com/golang-proxy/model"
+	"github.com/storyicon/golang-proxy/model"
 )
 
 func NewMySQL(options *model.MySQLOptions) (db *gorm.DB, err error) {

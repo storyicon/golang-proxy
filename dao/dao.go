@@ -7,8 +7,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"storyicon.visualstudio.com/golang-proxy/model"
-	"storyicon.visualstudio.com/golang-proxy/std"
+	"github.com/storyicon/golang-proxy/model"
+	"github.com/storyicon/golang-proxy/std"
 )
 
 var (

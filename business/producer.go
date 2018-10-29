@@ -4,13 +4,13 @@ import (
 	"math/rand"
 	"time"
 
-	"storyicon.visualstudio.com/golang-proxy/model"
+	"github.com/storyicon/golang-proxy/model"
 
 	"github.com/gocolly/colly"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"storyicon.visualstudio.com/golang-proxy/dao"
-	"storyicon.visualstudio.com/golang-proxy/std"
+	"github.com/storyicon/golang-proxy/dao"
+	"github.com/storyicon/golang-proxy/std"
 )
 
 // StartProducer used to start the producer

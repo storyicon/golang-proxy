@@ -6,7 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"storyicon.visualstudio.com/golang-proxy/business"
+	"github.com/storyicon/golang-proxy/business"
 )
 
 func main() {

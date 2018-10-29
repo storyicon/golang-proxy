@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"storyicon.visualstudio.com/golang-proxy/dao"
+	"github.com/storyicon/golang-proxy/dao"
 )
 
 // Response is the response struct of the http service
