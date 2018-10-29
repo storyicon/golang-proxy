@@ -1,7 +1,7 @@
 # golang-proxy `v3.0`
 
 ![golang-proxy](https://img.shields.io/teamcity/codebetter/bt428.svg)
-![download](https://img.shields.io/eclipse-marketplace/dt/notepad4e.svg)
+[![download](https://img.shields.io/eclipse-marketplace/dt/notepad4e.svg)](https://github.com/storyicon/golang-proxy)
 
 
 - [English Document](#english-document)
@@ -43,7 +43,7 @@ Golang-proxy is an efficient free proxy crawler that ensures that the captured p
 
 ## 2. How to use
 
-`golang-proxy` provides compiled binary files so that you do not need `golang` on the machine. Download binary compression pack to [Release Page]()        
+`golang-proxy` provides compiled binary files so that you do not need `golang` on the machine. Download binary compression pack to [Release Page](https://github.com/storyicon/golang-proxy/releases/)        
 According to your system type, download the corresponding compression package, unzip it and run it. After a few minutes, you can access `localhost:9999/all` in the browser to see the proxy's crawl results.     
 
 Before I go into the detailed introduction of golang-proxy, I think it's best to tell you the most useful information first.
@@ -111,7 +111,7 @@ The proxy in the `proxy` table will be evaluated periodically and their scores w
 
 For convenience, the proxy in golang-proxy is stored in the portable database sqlite by default. You can make `golang-proxy` use the mysql database by adding the `config.yml` file in the executable directory.
 
-For details, see [Config]() page.
+For details, see [Config](https://github.com/storyicon/golang-proxy/tree/master/config) page.
 
 ### one `source folder`        
 
@@ -223,7 +223,7 @@ Golang-Proxy -- 简单高效的免费代理抓取工具通过抓取网络上公�
 2. 依旧提供 `Windows`、`Linux`、`Mac` **开箱即用版**！
     [Download Release v3.0](https://github.com/storyicon/golang-proxy/releases/)
 3. 支持自动对代理类型进行判断, 可以通过 `schemeType` 判定代理对`http`和`https`的支持程度
-4. 支持了MySQL数据库, 详情请见 [Config]()
+4. 支持了MySQL数据库, 详情请见 [Config](https://github.com/storyicon/golang-proxy/tree/master/config)
 5. 支持单独启动服务, 在启动编译好的二进制文件时, 通过 `-mode=` 来指定是否单独启动 `producer`/`consumer`/`assessor`/`service`
 6. 重新设计了数据表, 请注意, 这意味着 `API` 接口发生了变动
 7. 重新设计了 `源` 的数据结构, 去除了 `filter` 等字段, 请注意, 这意味着 `v2.0` 的源在直接提供给`v3.0` 使用时可能会出现一些问题
