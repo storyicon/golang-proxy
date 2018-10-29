@@ -25,4 +25,4 @@ If you specify to use the mysql database, then the database needs you to build, 
 
 如果你决定使用 `MySQL` 作为 `golang-proxy` 的储存引擎, 你需要自己建立数据库, 并在 `config.yml` 中指定它, 但是你不需要建立数据表, 因为 `golang-proxy` 会在它们不存在的时候自动创建
 
-当 `golang-proxy` 连接 `MySQL` 出现错误, 或者没有找到同目录下的 `config.yml` 的时候, 会默认使用 `sqlite` 数据库, 你可以下载 `sqlite studio` 等软件来读取这个便携式数据库 (事实上, 使用 `golang-proxy` 提供的 [http接口]() 已经足够了)       
+当 `golang-proxy` 连接 `MySQL` 出现错误, 或者没有找到同目录下的 `config.yml` 的时候, 会默认使用 `sqlite` 数据库, 你可以下载 `sqlite studio` 等软件来读取这个便携式数据库 (事实上, 使用 `golang-proxy` 提供的 [http接口](https://github.com/storyicon/golang-proxy#api-interface) 已经足够了)       
