@@ -4,96 +4,96 @@ import (
 	"math"
 	"time"
 
-	"github.com/jinzhu/gorm"
-	"github.com/parnurzeal/gorequest"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"github.com/storyicon/golang-proxy/dao"
-	"github.com/storyicon/golang-proxy/model"
-	"github.com/storyicon/golang-proxy/toolkit"
+	"storyicon.visualstudio.com/golang-proxy/dao"
+	"storyicon.visualstudio.com/golang-proxy/model"
 )
 
-type Assessor struct {
-	Database  *gorm.DB
-	Scheduler *cron.Cron
-}
+var (
+	// AssessorStackLength stores the number of proxy to be evaluated in the current memory.
+	AssessorStackLength = 0
+)
 
-func NewAssessor(db *gorm.DB) *Assessor {
-	return &Assessor{
-		Database:  db,
-		Scheduler: cron.New(),
-	}
-}
-
-func (s *Assessor) Assess(p *model.ValidProxy) {
-	r := &model.HTTPBinIP{}
-	req := gorequest.New().Proxy(p.Content).Timeout(RequestTimeout * time.Second)
-	timeStart := time.Now().UnixNano() / 1e6
-	res, _, errs := req.Get("http://httpbin.org/ip").EndStruct(r)
-	AssessorStackLength--
-	if len(errs) == 0 && res.StatusCode == 200 {
-		if toolkit.GetHostNameByIP(p.Content) == r.Origin {
-			timeCost := time.Now().UnixNano()/1e6 - timeStart
-			s.FeedBack(p, 1, float64(timeCost)/1e3)
-			log.Infof("[A]Proxy %s Assess Pass: (%dms)", p.Content, timeCost)
-			return
+// StartAssessor is used to start the evaluation procedure.
+func StartAssessor() {
+	scheduler := cron.New()
+	scheduler.AddFunc("@every 3s", func() {
+		if AssessorStackLength < AssessorStackCapacity {
+			proxies := dao.GetProxy(AssessorInterval, AssessorPerExtract)
+			AssessorStackLength += len(proxies)
+			for _, proxy := range proxies {
+				go (func(proxy *model.Proxy) {
+					Assess(proxy)
+				})(proxy)
+			}
 		}
-	}
-	log.Warnf("[A]Proxy %s Assess Failed", p.Content)
-	s.FeedBack(p, 0, float64(RequestTimeout)*1.5)
+	})
+	log.Infoln("Start Assessor")
+	scheduler.Start()
 }
 
-func (s *Assessor) FeedBack(p *model.ValidProxy, isSucc int, responseTime float64) {
-	p.AssessTimes++
-	times := float64(p.AssessTimes)
-	p.AvgResponseTime = (p.AvgResponseTime*(times-1.0) + responseTime) / times
-	if isSucc == 1 {
-		p.ContinuousFailedTimes = 0
+// Assess is used to evaluate an proxy.
+func Assess(proxy *model.Proxy) {
+	schemeTest := HTTP
+	timestamp := time.Now().UnixNano() / 1e6
+	switch proxy.SchemeType {
+	case typeHTTP:
+		schemeTest = HTTP
+	case typeHTTPS:
+		schemeTest = HTTPS
+	case typeBOTH:
+		if timestamp%2 == 0 {
+			schemeTest = HTTPS
+		}
+	default:
+		log.Errorf("Unknown proxy scheme type: %d", proxy.SchemeType)
+	}
+
+	testOK := HTTPBinTester(proxy.IP, proxy.Port, schemeTest)
+	AssessorStackLength--
+	timeCost := float64(time.Now().UnixNano()/1e6-timestamp) / 1e3
+	feedBack(proxy, testOK, timeCost)
+}
+
+func feedBack(proxy *model.Proxy, isOK bool, timeCost float64) {
+	proxy.AssessTimes++
+	assessTimes := float64(proxy.AssessTimes)
+	proxy.AvgResponseTime = (proxy.AvgResponseTime*(assessTimes-1.0) + timeCost) / assessTimes
+	if isOK {
+		proxy.ContinuousFailedTimes = 0
+		proxy.SuccessTimes++
+		log.Infof("[Assessor]Proxy %s assess pass(%gms)", proxy.Content, timeCost)
 	} else {
-		p.ContinuousFailedTimes++
+		proxy.ContinuousFailedTimes++
+		log.Warnf("[Assessor]Proxy %s Assess Failed", proxy.Content)
 	}
-	p.SuccessTimes += isSucc
-	p.UpdateTime = time.Now().Unix()
-	p.Score = GetScore(p)
-	s.UpdateValidProxy(p)
+	proxy.UpdateTime = time.Now().Unix()
+	proxy.Score = GetScore(proxy)
+	UpdateProxy(proxy)
 }
 
-/**
-Set 4 impact factors, namely AssessTimes, SuccessTimes, Speed, Mutation
-Continuously increasing Mutation value will lead to a sharp drop in Score
-Formula affected by SuccessRate and AssessTimes at the same time.
-Formulas can be derived by yourself
-*/
-func GetScore(p *model.ValidProxy) float64 {
+// UpdateProxy is used to update the evaluation information to the database.
+func UpdateProxy(proxy *model.Proxy) {
+	session := dao.GetDatabase()
+	successRate := float64(proxy.SuccessTimes) / float64(proxy.AssessTimes)
+	if successRate < AssessorAllowSuccessRateMin {
+		log.Warnf("[Assessor]Proxy %s Deleted: score too low", proxy.Content)
+		session.Delete(proxy)
+	} else {
+		session.Save(proxy)
+	}
+}
+
+// GetScore uses association algorithm to evaluate the score of a Proxy.
+// Set 4 impact factors, namely AssessTimes, SuccessTimes, Speed, Mutation
+// Continuously increasing Mutation value will lead to a sharp drop in Score
+// Formula affected by SuccessRate and AssessTimes at the same time.
+// Formulas can be derived by yourself
+func GetScore(p *model.Proxy) float64 {
 	times := float64(p.AssessTimes)
 	success := float64(p.SuccessTimes)
 	speed := math.Sqrt(float64(RequestTimeout)) / p.AvgResponseTime
 	mutation := 1 / math.Pow(float64(p.ContinuousFailedTimes)+1, 2.0)
 	return success * speed * mutation / math.Sqrt(times)
-}
-
-func (s *Assessor) UpdateValidProxy(p *model.ValidProxy) {
-	db := dao.GetSQLite()
-	succRate := float64(p.SuccessTimes) / float64(p.AssessTimes)
-	if succRate < AllowAssessSuccessRateMin {
-		log.Warnf("[A]Proxy %s Deleted: score too low", p.Content)
-		db.Delete(p)
-	} else {
-		db.Save(p)
-	}
-}
-
-func (s *Assessor) Start() {
-	s.Scheduler.AddFunc("@every 3s", func() {
-		if AssessorStackLength < AssessorStackCapacity {
-			proxy := dao.GetValidProxy(AssessorInterval, AssessorPerExtract)
-			for _, v := range *proxy {
-				AssessorStackLength++
-				go (func(p model.ValidProxy) {
-					s.Assess(&p)
-				})(v)
-			}
-		}
-	})
-	s.Scheduler.Start()
 }

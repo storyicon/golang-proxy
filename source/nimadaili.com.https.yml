@@ -1,0 +1,17 @@
+
+# "."命名开头的文件将不会被载入
+page: 
+    entry: "http://www.nimadaili.com/https/?page=1"
+    template: "http://www.nimadaili.com/https/?page={page}"
+    from: 1
+    to: 2000
+selector:
+    iterator: ".fl-table tr"
+    ip: "td:nth-child(1)"
+    port: ""
+category:
+    parallelnumber: 3
+    delayRange: [10, 30]
+    interval: "@every 10m"
+debug: true
+

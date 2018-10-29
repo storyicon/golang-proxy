@@ -1,0 +1,16 @@
+# "."命名开头的文件将不会被载入
+page: 
+    entry: "http://www.xiladaili.com/https/1/"
+    template: "http://www.xiladaili.com/https/{page}/"
+    from: 0
+    to: 2000
+selector:
+    iterator: ".fl-table tr"
+    ip: "td:nth-child(1)"
+    port: ""
+category:
+    parallelnumber: 3
+    delayRange: [10, 30]
+    interval: "@every 10m"
+debug: true
+

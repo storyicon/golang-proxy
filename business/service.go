@@ -1,94 +1,76 @@
 package business
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"github.com/storyicon/golang-proxy/dao"
+	"storyicon.visualstudio.com/golang-proxy/dao"
 )
 
+// Response is the response struct of the http service
 type Response struct {
-	Code    int `json:"code"`
+	Error   string      `json:"error"`
 	Message interface{} `json:"message"`
 }
 
-func StdExport(r http.ResponseWriter, data interface{}, err error) {
-	var response Response
-	r.Header().Set("Content-Type", "application/json")
-	if err == nil {
-		response.Code = ResponseCodeSuccess
-		response.Message = data
-		r.WriteHeader(http.StatusOK)
-	} else {
-		response.Code = ResponseCodeError
-		response.Message = fmt.Sprintf("%v", err)
-		r.WriteHeader(http.StatusInternalServerError)
-	}
-	var bytes []byte
-	if bytes, err = json.Marshal(response); err == nil {
-		r.Write(bytes)
-	}
-}
-
-func SQLRedirect(res http.ResponseWriter, req *http.Request, sql string) {
-	url := fmt.Sprintf("http://%s/sql?query=%s", req.Host, sql)
-	http.Redirect(res, req, url, http.StatusTemporaryRedirect)
-}
-
-func getTableBySQL(s string) string {
-	s = strings.ToLower(s)
-	n := strings.Index(s, "from")
-	if n < 0 {
-		return ""
-	}
-	var w, c string
-	for n = n + 4; n < len(s); n++ {
-		c = s[n : n+1]
-		if c != " " {
-			w += c
-			continue
+// StartService used to start the http service
+func StartService() {
+	router := gin.Default()
+	router.GET("/all", func(c *gin.Context) {
+		tableName := queryWithDefault(c, "table", "proxy")
+		sql := fmt.Sprintf("SELECT * FROM %s ", tableName)
+		redirect(c, sql)
+	})
+	router.GET("/random", func(c *gin.Context) {
+		tableName := queryWithDefault(c, "table", "proxy")
+		sql := fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() limit 1", tableName)
+		redirect(c, sql)
+	})
+	router.GET("/sql", func(c *gin.Context) {
+		query := c.Query("query")
+		tableName := getTableNameBySQL(query)
+		response, statusCode := Response{}, http.StatusOK
+		if tableName != "" {
+			record, err := dao.GetSQLResult(tableName, query)
+			response.Message = record
+			if err != nil {
+				statusCode = http.StatusInternalServerError
+				response.Error = fmt.Sprint(err)
+			}
+		} else {
+			statusCode = http.StatusInternalServerError
+			response.Error = "Unable to resolve table name"
 		}
-		if w != "" {
+		c.JSON(statusCode, response)
+	})
+	log.Infof("[S]Start Service on %s", ServiceListenAddress)
+	router.Run(ServiceListenAddress)
+}
+
+func redirect(context *gin.Context, sql string) {
+	context.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/sql?query=%s", sql))
+}
+
+func getTableNameBySQL(s string) string {
+	words := strings.Split(strings.ToLower(s), " ")
+	length := len(words)
+	for i := 0; i < length; i++ {
+		if words[i] == "from" {
+			if i < length-1 {
+				return words[i+1]
+			}
 			break
 		}
 	}
-	return w
+	return ""
 }
 
-func getRequestParam(req *http.Request, key string, _default string) string {
-	if v := strings.Join(req.URL.Query()[key], ""); v != "" {
-		return v
+func queryWithDefault(c *gin.Context, key string, defaultValue string) string {
+	if conseq := c.Query(key); conseq != "" {
+		return conseq
 	}
-	return _default
-}
-
-func StartService() {
-	router := mux.NewRouter()
-	router.HandleFunc("/all", func(res http.ResponseWriter, req *http.Request) {
-		table := getRequestParam(req, "table", "valid_proxy")
-		sql := fmt.Sprintf("SELECT * FROM %s ", table)
-		SQLRedirect(res, req, sql)
-	})
-	router.HandleFunc("/random", func(res http.ResponseWriter, req *http.Request) {
-		table := getRequestParam(req, "table", "valid_proxy")
-		sql := fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() limit 1", table)
-		SQLRedirect(res, req, sql)
-	})
-	router.HandleFunc("/sql", func(res http.ResponseWriter, req *http.Request) {
-		vars := req.URL.Query()
-		if query := vars["query"]; len(query) == 1 {
-			sql := strings.Join(query, "")
-			if table := getTableBySQL(sql); table != "" {
-				record, err := dao.GetSQLResult(table, sql)
-				StdExport(res, record, err)
-			}
-		}
-	})
-	address := fmt.Sprintf("localhost:%d", ServiceListenPort)
-	log.Infof("[S]Start Service on %s", address)
-	http.ListenAndServe(address, router)
+	return defaultValue
 }

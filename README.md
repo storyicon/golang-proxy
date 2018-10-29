@@ -1,110 +1,312 @@
-# golang-proxy `v2.0`
+# golang-proxy `v3.0`
 
 ![golang-proxy](https://img.shields.io/teamcity/codebetter/bt428.svg)
 ![download](https://img.shields.io/eclipse-marketplace/dt/notepad4e.svg)
 
-Golang-Proxy -- 简单高效的免费代理抓取工具通过抓取网络上公开的免费代理，来维护一个属于自己的高匿代理池，用于网络爬虫、资源下载等用途。
+
+- [English Document](#english-document)
+    - [1. Feature](#1-feature)
+    - [2. How to use](#2-how-to-use)
+        - [API interface](#api-interface)
+    - [3. Advanced](#3-advanced)
+        - [two `data tables`](#two-data-tables)
+            - [1. Table Crude Proxy](#1-table-crude-proxy)
+            - [2. Table Proxy](#2-table-proxy)
+        - [one `configuration file`](#one-configuration-file)
+        - [one `source folder`](#one-source-folder)
+        - [four `modules`](#four-modules)
+    - [Request for comments](#request-for-comments)
+- [中文文档](#中文文档)
+    - [在 `v3.0` 有哪些新特性](#在-v30-有哪些新特性)
+    - [如何使用 `golang-proxy`](#如何使用-golang-proxy)
+        - [1. 使用开箱即用版本](#1-使用开箱即用版本)
+            - [接口示例: `localhost:9999/sql`](#接口示例-localhost9999sql)
+        - [2. 使用源码编译](#2-使用源码编译)
+    - [为什么要用 Golang-Proxy](#为什么要用-golang-proxy)
+    - [如何配置一个新的源](#如何配置一个新的源)
+    - [征求意见](#征求意见)
+
+
 ![golang-proxy](https://raw.githubusercontent.com/parnurzeal/gorequest/gh-pages/images/Gopher_GoRequest_400x300.jpg)
 
-## What's new in V2.0?
+# English Document
 
-1.  **不再依赖 MySQL 和 NSQ**！
-2.  之前需要分别启动`publisher`、`consumer`和`assessor`，现在 **只需要启动主程序** 即可！
-3.  提供了高度灵活的 **API 接口**，在启动主程序后，即可通过在浏览器访问`localhost:9999/all` 与 `localhost:9999/random` 直接获取抓到的代理！甚至可以使用 `localhost:9999/sql?query=`来执行 SQL 语句来自定义代理筛选规则！
-4.  提供 `Windows`、`Linux`、`Mac` **开箱即用版**！
-    [Download Release v2.0](https://github.com/storyicon/golang-proxy/releases/)
+Golang-proxy is an efficient free proxy crawler that ensures that the captured proxies are highly anonymous and at the same time guarantee their quality. You can use these captured proxies to download network resources and ensure the privacy of your own identity.
 
-## 安装
+## 1. Feature
 
-#### 1. 通过编译源码
+* Very high speed of proxy crawler, which can download 1000 pages per second.
+* You can customize the source of proxy crawler. The configuration file is extremely simple.
+* Provide a compiled version, comes with a SQLite database, and supports mysql
+* Comes with an API interface, all functions can be used with one click
+* Proxy evaluation system to ensure the quality of the proxy pool       
+
+## 2. How to use
+
+`golang-proxy` provides compiled binary files so that you do not need `golang` on the machine. Download binary compression pack to [Release Page]()        
+According to your system type, download the corresponding compression package, unzip it and run it. After a few minutes, you can access `localhost:9999/all` in the browser to see the proxy's crawl results.     
+
+Before I go into the detailed introduction of golang-proxy, I think it's best to tell you the most useful information first.
+
+### API interface
+After you start the binary, you can access the following interface in the browser to get the proxy             
+
+| url  | description  |
+|-------|---|
+| `localhost:9999/all`  |  Get all highly available proxies |
+| `localhost:9999/all?table=proxy`  |  Get all highly available proxies |
+| `localhost:9999/random` | Randomly acquire a highly available proxy   |
+| `localhost:9999/all?table=crude_proxy`  |  Obtain the proxies in the temporary table (the quality of them cannot be guaranteed) |
+| `localhost:9999/random?table=proxy` | Randomly get an proxy from the temporary table (the quality of them cannot be guaranteed)  |
+| `localhost:9999/sql?query=`  | Write the SQL statement you want to execute after `query=`, customize your filter rules.  |
+
+Having mastered the above content, you have been able to use the 50% function of `golang-proxy`. But the last interface allows you to execute custom SQL statements, and you'll find that you need to know at least the structure of the tables. The following will tell you.
+
+## 3. Advanced
+
+golang-proxy consists of the following parts:
+* two `data tables`
+* one `configuration file`
+* one `source folder`
+* four `modules`   
+
+### two `data tables`
+
+#### 1. Table Crude Proxy
+In order to store temporary proxies, we designed the data table `crude_proxy`, the table is defined as follows.
+
+| field  | type  | example | description |
+|-------|---| --- | --- |
+|id | int | - | - |
+|ip | string | 192.168.0.1 | - |
+|port | string | 255 | - |
+|content | string | 192.168.0.1:255 | - |
+|insert_time | int | 1540798717 | - |
+|update_time | int | 1540798717 | - |
+
+table `crude_proxy` stores the proxies that are crawled out, and cannot guarantee their quality.
+
+#### 2. Table Proxy
+
+When the agent in the `crude_proxy` table passes through `pre assess` ( `pre assess` roughly verifies the availability of the proxy and tests the proxy's support for `https` and `http` ), it will enter the `proxy` table. 
+
+| field  | type  | example | description |
+|-------|---| --- | --- |
+id | int | - | - |  
+ip | string | 192.168.0.1 | - |
+port | string | 255 | - |
+scheme_type | int | 2 | Identify the extent to which the proxy supports http and https, `0`: http only, `1` https only, `2` https & http |
+content | string | 192.168.0.1:255 | |
+assess_times | int | 5 | proxy evaluation times |
+success_times | int | 5 | The number of times the proxy successfully passed the evaluation |
+avg_response_time | float | 0.001 | - |
+continuous_failed_times | int | 0 | The number of consecutive failures during the proxy evaluation process |
+score | float | 25 | The higher the better |
+insert_time | int | 1540798717 | - |
+update_time | int | 1540798717 | - |
+
+The proxy in the `proxy` table will be evaluated periodically and their scores will be modified. Low scores will be deleted.
+
+### one `configuration file`
+
+For convenience, the proxy in golang-proxy is stored in the portable database sqlite by default. You can make `golang-proxy` use the mysql database by adding the `config.yml` file in the executable directory.
+
+For details, see [Config]() page.
+
+### one `source folder`        
+
+golang-proxy needs `source` to define its crawling contents and rules. Therefore, the run directory of golang-proxy needs at least one `source` folder, and the source folder should have at least one source in `yml` format.
+The source is defined as follows:
+```yml
+page: 
+    entry: "http://www.xxx.com/http/?page=1"
+    template: "http://www.xxx.com/http/?page={page}"
+    from: 1
+    to: 2000
+selector:
+    iterator: ".list item"
+    ip: ".ip"
+    port: ".port"
+category:
+    parallelnumber: 3
+    delayRange: [10, 30]
+    interval: "@every 10m"
+debug: true
+```
+In the definition above, `producer` will first crawl the entry page, then crawl:          
+```
+http://www.xxx.com/http/?page=1      
+http://www.xxx.com/http/?page=2      
+http://www.xxx.com/http/?page=3      
+...      
+http://www.xxx.com/http/?page=2000     
+```
+This source definition page expects this format:
+```html
+<html>
+    ...
+    <div class="list">
+        <div class="item">
+            <div class="ip"> 127.0.0.1 </div>
+            <div class="port"> 80 </div>
+            ...
+        </div>
+        <div class="item">
+            <div class="ip"> 125.4.0.1 </div>
+            <div class="port"> 8080 </div>
+            ...
+        </div>
+        ...
+    </div>
+    ...
+</html>
+```
+When `producer` parses a single page, it always traverses the nodes defined by iterator first, and then gets the elements defined by `ip` and `port` selectors from these nodes. The source definition above is still valid for the following HTML structure.
+```html
+<html>
+    ...
+    <div class="list">
+        <div class="item">
+            <div class="ip"> 127.0.0.1:80 </div>
+        </div>
+        <div class="item">
+            <div class="ip"> 125.4.0.1:8080</div>
+        </div>
+        ...
+    </div>
+    ...
+</html>
+```
+Because when the `port` selector cannot get the content, it will try to parse the port from the text selected by the `ip` selector.       
+
+The source is stored in the source folder in yml format, and a source definition is completed. Golang-proxy will read it and crawl it the next time it starts. So you successfully define a source, store it in the source folder in YML format, and the next time you start golang-proxy, the source will enter the crawl list.
+
+> If a source file name starts with a `.` , the source will not be read.
+
+### four `modules`   
+
+golang-proxy consists of four modules, which cooperate to complete the task that golang-proxy wants to accomplish.
+
+
+| module name  | description |
+| --- | --- |
+| producer | Periodically fetch the source defined in the `source` directory, and write the fetched proxy to the `crude_proxy` table. |
+| consumer | Periodically read a certain number of proxies from `crude_proxy`, determine their proxy scheme type and availability, and write them to the `proxy` table. |
+| assessor | Periodically read a number of proxies from the `proxy` table to evaluate their quality. |
+| service | Be responsible for the HTTP API interface provided by `golang-proxy`, allows you to filter and obtain the proxies in the `crude_proxy` and `proxy` tables by `localhost: 9999/all`, `localhost: 9999/random`, and `localhost: 9999/sql`. |
+
+
+When you start the executable file of golang-proxy, you will start these module in turn. But you can add the `-mode` startup parameter after the golang-proxy executable to command golang-proxy to start only one module. Like below:           
+```bash
+golang-proxy -mode=service
+```
+This will only start the HTTP API interface service.           
+
+At this point, you have mastered the 95% function of golang-proxy. If you want to find more, you can read the source code provided above, and improve them.         
+
+## Request for comments
+
+Welcome to submit issue.
+If you feel that golang-proxy is helping you, you can order a star or watch, thanks !
+
+
+
+
+
+
+# 中文文档
+
+Golang-Proxy -- 简单高效的免费代理抓取工具通过抓取网络上公开的免费代理，来维护一个属于自己的高匿代理池，用于网络爬虫、资源下载等用途。         
+
+## 在 `v3.0` 有哪些新特性
+1. 依旧提供了高度灵活的 **API 接口**，在启动主程序后，即可通过在浏览器访问`localhost:9999/all` 与 `localhost:9999/random` 直接获取抓到的代理！甚至可以使用 `localhost:9999/sql?query=`来执行一些简单的 SQL 语句来自定义代理筛选规则！
+2. 依旧提供 `Windows`、`Linux`、`Mac` **开箱即用版**！
+    [Download Release v3.0](https://github.com/storyicon/golang-proxy/releases/)
+3. 支持自动对代理类型进行判断, 可以通过 `schemeType` 判定代理对`http`和`https`的支持程度
+4. 支持了MySQL数据库, 详情请见 [Config]()
+5. 支持单独启动服务, 在启动编译好的二进制文件时, 通过 `-mode=` 来指定是否单独启动 `producer`/`consumer`/`assessor`/`service`
+6. 重新设计了数据表, 请注意, 这意味着 `API` 接口发生了变动
+7. 重新设计了 `源` 的数据结构, 去除了 `filter` 等字段, 请注意, 这意味着 `v2.0` 的源不能直接提供给`v3.0` 的源使用
+8. 更新了一些 `源`
+9. 不再支持 `-source` 启动参数
+
+## 如何使用 `golang-proxy`
+
+### 1. 使用开箱即用版本    
+
+[Release 页面](https://github.com/storyicon/golang-proxy/releases/) 根据系统环境提供了一些压缩包，将他们解压后执行即可。
+
+开箱即用版下载地址: [Download Release v3.0](https://github.com/storyicon/golang-proxy/releases/)
+
+下载完成后, 将压缩包中的二进制文件和 `source` 目录解压到同一个位置, 启动二进制文件即可, 程序将会启动下面这些服务: 
+1. `producer` :  周期性的抓取`source`目录中定义的源, 将抓取到的代理写入到 `crude_proxy` 表中
+2. `consumer` :  周期性的从 `crude_proxy` 中读取一定数量的代理, 判断它们的代理类型以及可用性, 将它们写入到 `proxy`表中
+3. `assessor` : 周期性的从 `proxy` 表中读取一定数量的代理, 评估它们的质量
+4. `service` : `golang-proxy` 提供的 http api 接口, 使你可以通过 `localhost:9999/all`, `localhost:9999/random`, `localhost:9999/sql?query=` 这三个接口来筛选和获取 `crude_proxy`和 `proxy` 表中的代理
+
+当你启动编译好的二进制文件时, 默认这些服务会依次启动, 但是在 `v3.0` 版本, 你可以通过添加 `-mode` 启动参数来指定单独启动某个服务, 比如:
+```
+golang-proxy -mode=service
+```
+这样运行, 将只会启动 `service` 服务, 在启动了 `service` 之后, 你可以在浏览器中访问以下接口, 获得相应的代理:         
+
+| url  | description  |
+|-------|---|
+| `localhost:9999/all`  |  获取 `proxy` 表中所有已经抓取到的代理 |
+| `localhost:9999/all?table=proxy`  |  获取 `proxy` 表中所有已经抓取到的代理 |
+| `localhost:9999/all?table=crude_proxy`  |  获取 `crude_proxy` 表中所有已经抓取到的代理 |
+| `localhost:9999/random` | 从 `proxy` 表中随机获取一条代理   |
+| `localhost:9999/random?table=proxy` | 从 `proxy` 表中随机获取一条代理   |
+| `localhost:9999/random?table=crude_proxy` | 从 `crude_proxy` 表中随机获取一条代理   |
+| `localhost:9999/sql?query=`  | 在`query=`后加上`SQL`语句, 返回SQL执行结果, 只支持较为简单的查询语句    |
+
+请注意, `crude_proxy` 只是抓取到的代理的临时储存表, 不能保证它们的质量, 而`proxy` 表中的代理将会不断得到 `assessor` 的评估, `proxy` 表中的 `score` 字段可以较为全面的反映一个代理的质量, 质量较低时会被删除
+
+#### 接口示例: `localhost:9999/sql`
+
+例如访问 `localhost:9999/sql?query=SELECT * FROM PROXY WHERE SCORE > 5 ORDER BY SCORE DESC`, 将会返回 `proxy` 表中所有分数大于5的代理, 并按照分数从高到低返回 
+```json
+{
+    "error": "<nil>",
+    "message": [
+        {
+            "id": 2,
+            "ip": "45.113.69.177",
+            "port": "1080",
+            // scheme_type 可以取以下值:
+            // 0: 代理只支持 http
+            // 1: 代理只支持 https
+            // 2: 代理同时支持 http 和 https
+            "scheme_type": 0,
+            "content": "45.113.69.177:1080",
+            // 评估次数
+            "assess_times": 9,
+            // 评估成功次数, 可以通过 success_times/assess_times获得代理连接成功率
+            "success_times": 9,
+            // 平均响应时间
+            "avg_response_time": 0.098,
+            // 连续失败次数
+            "continuous_failed_times": 0,
+            // 分数, 推荐使用 5 分以上的代理
+            "score": 68.45106053570785,
+            "insert_time": 1540793312,
+            "update_time": 1540797880
+        },
+    ]
+}
+```
+### 2. 使用源码编译    
+
 
 ```bash
 go get github.com/storyicon/golang-proxy
 ```
 
-进入到 `golang-proxy` 目录，执行 `go build main.go`，执行生成的二进制的执行程序即可。
+进入到 `golang-proxy` 目录，执行 `go build main.go`，执行生成的二进制的执行程序即可。     
 
 **注意：**
-在 `go build` 的过程中可能出现`cannot find package "github.com/gocolly/colly" in any of` 等找不到包的情况，根据提示的地址 `go get` 即可
-
-```
-# 比如如果在 go build main.go 的时候提示
-business\publisher.go:8:2: cannot find package "github.com/gocolly/colly" in any of:
-        F:\Go\src\github.com\gocolly\colly (from $GOROOT)
-        D:\golang\src\github.com\gocolly\colly (from $GOPATH)
-        C:\Users\Administrator\go\src\github.com\gocolly\colly
-        D:\ivank\src\github.com\gocolly\colly
-执行 go get github.com/gocolly/colly 即可
-```
-
-如果觉得麻烦，可以使用 [Release 页面](https://github.com/storyicon/golang-proxy/releases/) 中提供的 **`开箱即用`** 版本。
-
-#### 2. 开箱即用版本
-
-[Release 页面](https://github.com/storyicon/golang-proxy/releases/)根据系统环境提供了一些压缩包，将他们解压后执行即可。
-
-开箱即用版下载地址: [Download Release v2.0](https://github.com/storyicon/golang-proxy/releases/)
-
-#### 3. Tips
 
 项目根目录下的 `./source` 是项目执行必须的文件夹，里面存储了各类网站源，其他的文件夹储存的均为项目源码。所以在编译后得到二进制程序 `main` 文件后，即可将 `main` 文件和 `source` 文件夹一同移动到任意地方，`main` 文件可以任意命名。  
-如果提示找不到 `source`文件夹， 你可以在执行程序时加上`-source=`参数来指定`source`文件夹路径，例如：
-
-```bash
-# xxx填source文件夹的相对或者绝对路径
-main -source=xxx
-```
-
-## API 接口
-
-在程序运行后，可以通过在浏览器访问以下接口获取数据库中抓取到的代理。
-
-#### 1. 随机获取一条代理
-
-```json
-地址: http://localhost:9999/random
-返回示例：
-{
-    //状态码0表示成功，1表示错误
-	"code": 0,
-	"message": [{
-		"id": 124,
-		"content": "http://190.2.144.133:1080",
-		//评估次数，次数越多，代表代理存活时间越长
-		"assess_times": 13,
-		//评估成功次数，success_times/assess_times可以得到评估成功率
-		"success_times": 11,
-		//平均响应时间，单位为秒
-		"avg_response_time": 2.0831538461538464,
-		//连续评估失败次数，是分数计算的重要指标
-		"continuous_failed_times": 0,
-		//分数，分数越高，代理质量越高
-		"score": 3.2747991296955083,
-		//插入时间戳（秒）
-		"insert_time": 1532324791,
-		//更新时间戳（秒）
-		"update_time": 1532414960
-	}]
-}
-```
-
-#### 2. 获取所有可用代理
-
-```json
-地址: http://localhost:9999/all
-```
-
-#### 3. 执行 SQL
-
-```json
-地址: http://localhost:9999/sql/query=xxxx
-将xxxx替换为要执行的sql语句即可，程序配置了两张表：
-valid_proxy 存放高可用代理
-crawl_proxy 抓取到的代理的缓存表（代理质量不能保证）
-
-例如: http://localhost:9999/sql/query=SELECT * FROM VALID_PROXY WHERE 1 ORDER BY SCORE DESC
-将会将所有的可用代理按照分数倒序并返回。
-```
 
 ## 为什么要用 Golang-Proxy
 
@@ -143,8 +345,6 @@ selector:
     iterator: ".table tbody tr"
     ip: "td:nth-child(1)"
     port: "td:nth-child(2)"
-    scheme: "td:nth-child(3)"
-    filter: ""
 # 以上配置用于抓取下面这种 HTML 结构
 # <table class="table">
 #     <tbody>
@@ -166,7 +366,6 @@ selector:
 #     <tbody>
 # <table>
 # 选择器为通用的JQuery选择器，iterator为循环对象，比如表格里的行，每行一条代理，那这个行的选择器就是iterator，而ip、port、protocal则是在iterator选择器的基础上进行子元素的查找。
-# protocal为空，或protocal对应的元素无法找到，则默认是HTTP类型
 ```
 
 ```yml
@@ -182,7 +381,7 @@ category:
 debug: true
 ```
 
-## Request For Comments
+## 征求意见
 
 1.  使用中任何问题提 `issues` 即可
 2.  如果发现了新的好用的源，欢迎提交上来分享
