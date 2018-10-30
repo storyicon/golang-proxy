@@ -267,7 +267,7 @@ golang-proxy -mode=service
 例如访问 `localhost:9999/sql?query=SELECT * FROM PROXY WHERE SCORE > 5 ORDER BY SCORE DESC`, 将会返回 `proxy` 表中所有分数大于5的代理, 并按照分数从高到低返回 
 ```json
 {
-    "error": "<nil>",
+    "error": "",
     "message": [
         {
             "id": 2,
