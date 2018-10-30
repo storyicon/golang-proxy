@@ -299,7 +299,7 @@ golang-proxy -mode=service
 
 
 ```bash
-go get github.com/storyicon/golang-proxy
+go get -u github.com/storyicon/golang-proxy
 ```
 
 进入到 `golang-proxy` 目录，执行 `go build main.go`，执行生成的二进制的执行程序即可。     
