@@ -7,8 +7,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"github.com/storyicon/golang-proxy/model"
-	"github.com/storyicon/golang-proxy/std"
+	"golang-proxy/model"
+	"golang-proxy/std"
 )
 
 var (
@@ -50,12 +50,21 @@ func GetConfig() *model.Config {
 func getDatabase() (db *gorm.DB) {
 	config, err := getConfig()
 	if err == nil {
-		log.Infoln("The configuration file has been read, try to use the MySQL database")
+		log.Infoln("The configuration file has been read")
+		log.Infoln("Try to use the MySQL database")
 		db, err = std.NewMySQL(config.MySQL)
 		if err == nil {
 			return db
 		}
 		log.Errorf("An error occurred while connecting to the MySQL database: %v", err)
+
+		log.Infoln("Try to use the PostgreSQL database")
+		db, err = std.NewPostgreSQL(config.PostgreSQL)
+		if err == nil {
+			return db
+		}
+		log.Errorf("An error occurred while connecting to the PostgreSQL database: %v", err)
+
 	}
 	log.Infof("Start to use sqlite database, because %v", err)
 	db, err = std.NewSQLite(model.SQLiteDatabase)

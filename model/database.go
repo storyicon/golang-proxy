@@ -3,7 +3,7 @@ package model
 // CrudeProxy stores the agents that are crawled out, and cannot guarantee their quality.
 type CrudeProxy struct {
 	// ID is the ID value of the current record, which is unique among all proxies.
-	ID int64 `gorm:"AUTO_INCREMENT;" json:"id"`
+	ID int64 `gorm:"primary_key" json:"id"`
 	// IP is the IP address of the proxy. e.g 127.0.0.1
 	IP string `json:"ip"`
 	// Port is the Port of the proxy. e.g 3306
@@ -23,7 +23,7 @@ func (CrudeProxy) TableName() string {
 // Proxy stores the proxy filtered from CrudeProxy
 type Proxy struct {
 	// ID is the ID value of the current record, which is unique among all proxies.
-	ID int64 `gorm:"AUTO_INCREMENT;" json:"id"`
+	ID int64 `gorm:"primary_key" json:"id"`
 	// IP is the IP address of the proxy. e.g 127.0.0.1
 	IP string `json:"ip"`
 	// Port is the Port of the proxy. e.g 3306

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/storyicon/golang-proxy/model"
+	"golang-proxy/model"
 )
 
 func GetSQLResult(tableName string, sql string) (conseq interface{}, err error) {

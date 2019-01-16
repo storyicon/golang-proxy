@@ -1,7 +1,14 @@
-MYSQL:
+#MYSQL:
+#  HOST: "127.0.0.1"
+#  PORT: "3306"
+#  USER: "root"
+#  PASS: "root"
+#  DB: "proxy"
+#  CHARSET: "utf8mb4"
+
+POSTGRESQL:
   HOST: "127.0.0.1"
-  PORT: "3306"
-  USER: "root"
-  PASS: "root"
+  PORT: "5432"
+  USER: "test"
+  PASS: "test"
   DB: "proxy"
-  CHARSET: "utf8mb4"

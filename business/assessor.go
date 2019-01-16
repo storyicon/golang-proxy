@@ -6,8 +6,8 @@ import (
 
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"github.com/storyicon/golang-proxy/dao"
-	"github.com/storyicon/golang-proxy/model"
+	"golang-proxy/dao"
+	"golang-proxy/model"
 )
 
 var (
