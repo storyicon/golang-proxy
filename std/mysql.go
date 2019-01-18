@@ -2,9 +2,9 @@ package std
 
 import (
 	"errors"
+	"github.com/arkadybag/golang-proxy/model"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"golang-proxy/model"
 	"log"
 )
 

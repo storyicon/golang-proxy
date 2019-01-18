@@ -2,12 +2,12 @@ package business
 
 import (
 	"fmt"
+	"github.com/arkadybag/golang-proxy/dao"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"golang-proxy/dao"
 )
 
 // Response is the response struct of the http service

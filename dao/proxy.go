@@ -2,10 +2,10 @@ package dao
 
 import (
 	"errors"
+	"github.com/arkadybag/golang-proxy/model"
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"golang-proxy/model"
 )
 
 func GetSQLResult(tableName string, sql string) (conseq interface{}, err error) {

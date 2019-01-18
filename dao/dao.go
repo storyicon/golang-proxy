@@ -1,14 +1,14 @@
 package dao
 
 import (
+	"github.com/arkadybag/golang-proxy/model"
+	"github.com/arkadybag/golang-proxy/std"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"golang-proxy/model"
-	"golang-proxy/std"
 )
 
 var (

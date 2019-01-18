@@ -1,13 +1,13 @@
 package business
 
 import (
+	"github.com/arkadybag/golang-proxy/dao"
+	"github.com/arkadybag/golang-proxy/model"
 	"math"
 	"time"
 
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"golang-proxy/dao"
-	"golang-proxy/model"
 )
 
 var (

@@ -1,16 +1,15 @@
 package business
 
 import (
+	"github.com/arkadybag/golang-proxy/dao"
+	"github.com/arkadybag/golang-proxy/model"
+	"github.com/arkadybag/golang-proxy/std"
 	"math/rand"
 	"time"
-
-	"golang-proxy/model"
 
 	"github.com/gocolly/colly"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
-	"golang-proxy/dao"
-	"golang-proxy/std"
 )
 
 // StartProducer used to start the producer
