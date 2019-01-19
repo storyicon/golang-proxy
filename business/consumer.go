@@ -28,7 +28,7 @@ var (
 // StartConsumer is used to start the consumer
 func StartConsumer() {
 	scheduler := cron.New()
-	scheduler.AddFunc("@every 1s", func() {
+	scheduler.AddFunc("@every 3s", func() {
 		if ConsumerStackLength < ConsumerStackCapacity {
 			log.Infoln("[Comsumer]No proxy in stack, start to extract proxy from database to pre assess")
 			proxies := dao.PopCrudeProxy(0, ConsumerPerExtract)

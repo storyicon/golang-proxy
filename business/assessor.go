@@ -18,7 +18,7 @@ var (
 // StartAssessor is used to start the evaluation procedure.
 func StartAssessor() {
 	scheduler := cron.New()
-	scheduler.AddFunc("@every 3s", func() {
+	scheduler.AddFunc("@every 5s", func() {
 		if AssessorStackLength < AssessorStackCapacity {
 			proxies := dao.GetProxy(AssessorInterval, AssessorPerExtract)
 			AssessorStackLength += len(proxies)
