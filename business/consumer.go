@@ -2,6 +2,7 @@ package business
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"fmt"
@@ -23,6 +24,8 @@ const (
 var (
 	// ConsumerStackLength stores the number of proxy to be pre evaluated in the current memory.
 	ConsumerStackLength = 0
+	// LocalIP is used to store local ipv4 address
+	LocalIP = GetLocalIPAddress()
 )
 
 // StartConsumer is used to start the consumer
@@ -68,6 +71,33 @@ func PreAssess(proxy *model.CrudeProxy) {
 	})
 }
 
+func isAnonymous(proxy string, origin string) bool {
+	if proxy == origin {
+		return true
+	}
+	for _, ip := range LocalIP {
+		if strings.Contains(origin, ip) {
+			return false
+		}
+	}
+	return true
+}
+
+// GetLocalIPAddress is used to get local ip address
+func GetLocalIPAddress() []string {
+	httpBin := &model.HTTPBinIP{}
+	_, _, errs := gorequest.New().Timeout(3 * time.Second).EndStruct(httpBin)
+	if len(errs) != 0 {
+		return []string{}
+	}
+	localIP := []string{}
+	address := strings.Split(httpBin.Origin, ",")
+	for _, addr := range address {
+		localIP = append(localIP, addr)
+	}
+	return localIP
+}
+
 // HTTPBinTester is used to use httpbin test agent.
 func HTTPBinTester(IP string, port string, schemeTest string) bool {
 	switch schemeTest {
@@ -88,7 +118,7 @@ func HTTPBinTester(IP string, port string, schemeTest string) bool {
 		).
 		EndStruct(httpBin)
 	if len(errs) == 0 && response.StatusCode == 200 {
-		if IP == httpBin.Origin {
+		if isAnonymous(IP, httpBin.Origin) {
 			log.Infof(`[Consumer][%s]Proxy Pre Assess Successful: %s`, schemeTest, proxy)
 			return true
 		}

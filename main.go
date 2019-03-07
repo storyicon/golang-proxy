@@ -20,8 +20,8 @@ func main() {
 
 	switch mode {
 	case "all":
-		go business.StartConsumer()
 		go business.StartProducer()
+		go business.StartConsumer()
 		go business.StartAssessor()
 		go business.StartService()
 	case "consumer":

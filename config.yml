@@ -1,0 +1,7 @@
+MYSQL:
+  HOST: "127.0.0.1"
+  PORT: "3306"
+  USER: "root"
+  PASS: "Fz475783185."
+  DB: "proxy"
+  CHARSET: "utf8mb4"
