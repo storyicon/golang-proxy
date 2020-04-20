@@ -25,8 +25,15 @@ func StartService() {
 		redirect(c, sql)
 	})
 	router.GET("/random", func(c *gin.Context) {
+		databaseType := dao.GetDatabase().Dialect().GetName()
 		tableName := queryWithDefault(c, "table", "proxy")
-		sql := fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() limit 1", tableName)
+		var sql string
+		switch databaseType {
+		case "sqlite3":
+			sql = fmt.Sprintf("SELECT * FROM %s ORDER BY RANDOM() limit 1", tableName)
+		case "mysql":
+			sql =fmt.Sprintf("SELECT * FROM %s ORDER BY RAND() limit 1", tableName)
+		}
 		redirect(c, sql)
 	})
 	router.GET("/sql", func(c *gin.Context) {
@@ -51,7 +58,7 @@ func StartService() {
 }
 
 func redirect(context *gin.Context, sql string) {
-	context.Redirect(http.StatusMovedPermanently, fmt.Sprintf("/sql?query=%s", sql))
+	context.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("/sql?query=%s", sql))
 }
 
 func getTableNameBySQL(s string) string {
