@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -20,11 +19,11 @@ func TemplateRender(template string, key string, value interface{}) string {
 
 // GetCurrentDirectory is used to get the directory where the current binary is running.
 func GetCurrentDirectory() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	dir, err := os.Getwd()
 	if err != nil {
 		log.Panicln(err)
 	}
-	return filepath.FromSlash(dir)
+	return dir
 }
 
 // LoadYaml is used to load yaml file
